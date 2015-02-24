@@ -19,19 +19,39 @@
  * If not, see <http://www.gnu.org/licenses/>.
 \*/
 
+/*\
+ *
+ *  Takes an input upto 999,999,999 and converts it into a spoken number.
+ *  e.g. 123 would become "One hundred and twenty three".
+ *  It has four languages to select from, English is #1 the others are currently
+ *  blank but any words for a base ten system can be used.
+ *
+ *  bugs: None that i have found in this version yet.
+ *
+\*/
+
+//global includes
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
-uint8_t zero(uint32_t* input, uint8_t* language);
+//local includes
+//none
 
-void ones(uint8_t input, uint8_t* language);
-void tens(uint8_t input, uint8_t* language);
-void teen(uint8_t input, uint8_t* language);
-void bign(uint8_t input, uint8_t* language);
+//function prototypes
+uint8_t zero(uint32_t* input, uint8_t* language);
+  //checks for a zero
 
 void group(uint32_t* input, uint32_t* magnitude, uint8_t group, uint8_t* carry, uint8_t* language);
-
+  //process each 'group' of xxx's 
+  void ones(uint8_t input, uint8_t* language);
+    //does the ones.
+  void tens(uint8_t input, uint8_t* language);
+    //does the tens
+  void teen(uint8_t input, uint8_t* language);
+    //does the teens
+  void bign(uint8_t input, uint8_t* language);
+    //does the bigger numbers like 'million', 'thousand', 'hundered', 'and' and blank.
 
 
 int main()
@@ -44,22 +64,19 @@ int main()
   scanf("%c", &language);
   language -= 0x30;
 
-
-
   while(1)
   {
-    input = 0;
+    //reset to starting values.
+    input = 0; carry = 0;
     magnitude = 100000000;
-    carry = 0;
-
-    system("clear");
-
-
-    printf("Please enter a number: ");
+    
+    system("clear");//clear the console.
+    printf("NumberWords v1.0. Copyright (C) 2015  Kal9001\n");
+    printf("Welcome to kal's numbers to words program\n");
+    printf("Please enter a number to convert into text: ");
 
     scanf("%u", &input);//read upto a 32bit integer from stdin
     getchar();//eats the return key
-
 
     printf("You have entered: %u.\n\n", input);
 
@@ -70,8 +87,9 @@ int main()
         group(&input, &magnitude, counter_g, &carry, &language);
       }
     }
-    printf("\nPress return to start again.\n");
-    getchar();
+    printf("\nPress return to enter another number\n");
+    printf("or press [ctrl] + [c] to quit.\n");
+    getchar();//wait for return key
   }
   return 0;
 }
