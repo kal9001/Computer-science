@@ -29,7 +29,7 @@
  *
  *  To program the CPU you must alter the program array. The values can be entered ether
  *  as any numeric type you like the compiler doesnt care.
- *  see the attached "instruction-set.txt" for list of instructions, registers and a brief
+ *  see the attached "README.txt" for list of instructions, registers and a brief
  *  explination of the program flow.
  *
  *  known bugs:
