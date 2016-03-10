@@ -21,7 +21,7 @@
 ;  512B 1st stage boot loader, Pulls a further 15 sectors from the disk and writes them directly after the first.
 ;  These sectors form the stage 2 boot loader which is in a seperate file.
 ;  *note right now we dont care about a partition table...
-;
+;  **note this binary must start on the first sector of the disk.
 ;  
 ;
 
