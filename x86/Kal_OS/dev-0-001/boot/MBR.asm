@@ -20,6 +20,7 @@
 ;  Features:
 ;  512B 1st stage boot loader, Pulls a further 15 sectors from the disk and writes them directly after the first.
 ;  These sectors form the stage 2 boot loader which is in a seperate file.
+;  *note right now we dont care about a partition table...
 ;
 ;  
 ;
@@ -81,3 +82,62 @@ diskFail 	db 'Disk read failure :-/ please check and restart computer', 0
 
 times 510-($-$$) db 0	;null padding macro
 dw 0xaa55		;MBR identifier
+
+;; ######more code here######
+
+
+
+gdt:;temporary global descriptor table for 32-bit mode
+   .null:
+      db 0x00
+      db 0x00
+
+   .code:
+      dw 0xffff		;Limit (bits  0-15)
+      dw 0x0000		;Base  (bits  0-15)
+      db 0x00		;Base  (bits 16-23)
+      db 0b10011010	;Flags1 / Type flags
+      db 0b11001111	;Flags2 / Limit 16-19
+      db 0x00		;Base 24-31 
+   
+   .data:
+      dw 0xffff		;Limit (bits  0-15)
+      dw 0x0000		;Base  (bits  0-15)
+      db 0x00		;Base  (bits 16-23)
+      db 0b10010010	;Flags1 / Type flags
+      db 0b11001111	;Flags2 / Limit 16-19
+      db 0x00		;Base 24-31 
+
+   .end:
+
+   .descriptor:
+      dw .end - .null - 1
+      dd .null
+
+CODE_SEGMENT equ .code - .null
+DATA_SEGMENT equ .data - .null
+
+switch_to_PM:
+   cli			;disable interrupts
+   lgdt [gdt.descriptor]
+   
+   mov eax, cr0		;load control register 0
+   or  eax, 0x1		;mask enable bit 1
+   mov cr0, eax		;save modified control register 0
+
+   jmp CODE_SEGMENT:init_PM	;long jump to fully enable
+
+[bits 32]
+
+init_PM:
+   mov ax, DATA_SEGMENT	;flat memory model
+   mov ds, ax
+   mov ss, ax
+   mov es, ax
+   mov fs, ax
+   mov gs, ax
+
+   mov esp, 0x7fffe	;place stack ontop of previous stack
+   mov ebp, esp
+
+times 8192-($-$$) db 0	;null padding macro upto 8k
