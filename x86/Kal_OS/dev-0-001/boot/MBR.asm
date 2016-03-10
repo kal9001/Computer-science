@@ -73,7 +73,11 @@ new_line:;Prints line line feed and carriage return
    call print_string	;call to print the newline chars
    pop si		;restore si
    ret			;return from function
+   
 ;;;;To be continued.....
+
+newLine		db `\n\r`, 0
+diskFail 	db 'Disk read failure :-/ please check and restart computer', 0
 
 times 510-($-$$) db 0	;null padding macro
 dw 0xaa55		;MBR identifier
