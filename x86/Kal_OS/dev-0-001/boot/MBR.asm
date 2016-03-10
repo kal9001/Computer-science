@@ -67,7 +67,7 @@ print_string:;prints a string from memory
    .done:
    ret			;return from function
 
-new_line:
+new_line:;Prints line line feed and carriage return
    push si		;preserve si
    mov si, newLine	;load newline string
    call print_string	;call to print the newline chars
