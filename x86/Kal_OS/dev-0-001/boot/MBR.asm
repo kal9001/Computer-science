@@ -29,13 +29,14 @@ bits 16
 
 ;set up the temp stack to use in 16bit mode just below the upper memory area
 xor ax, ax        	;set ax to zero
+mov es, ax		;set buffer segment to zero for later
 mov ds, ax      	;set data segment to start of ram
 add ax, 0x7000    	;set ax to stack segment
 mov ss, ax		;set stack segment to lowest address
 mov sp, 0xfffe  	;create stack just below the 
-mov bp, s	        ;set frame pointer to match
+mov bp, sp	        ;set frame pointer to match
 
-mov [0x7dfe], dx	;preserve the boot drive number
+mov [0x7dfe], dx	;preserve the boot drive number over the MBR ID incase we need it later
 
 ;This pulls a further 15 sectors from the disk.
 mov ah, 0x02 		;BIOS disk read sectors
@@ -44,12 +45,9 @@ mov ch, 0x00 		;(C) track/cylinder
 ;dh already set		;(H) R/W head
 mov cl, 0x02 		;(S) start sector
 mov al, 0x0f 		;number of sectors to read
-			
 
-mov bx, 0x0000		;load buffer segment
-mov es, bx		;set buffer segment
+;es already set		;segment for buffer		
 mov bx, 0x7e00		;set offset for buffer
-
 int 0x13		;execute disk read
 
 ;;;;To be continued.....
