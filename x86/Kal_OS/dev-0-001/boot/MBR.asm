@@ -50,6 +50,29 @@ mov al, 0x0f 		;number of sectors to read
 mov bx, 0x7e00		;set offset for buffer
 int 0x13		;execute disk read
 
+jnc 0x7e00		;jump if succesful
+
+mov si, diskFail	;disk failure message
+call print_string	;print message
+jmp $			;endless loop
+
+print_string:;prints a string from memory
+   mov ah, 0x0e		;BIOS TTY function
+   .repeat:
+      lodsb		;AL = SI++
+      cmp al, 0		;compare al to 0
+      je .done		;Jump if equal
+      int 0x10		;call BIOS to print char
+      jmp .repeat	;loop to next char
+   .done:
+   ret			;return from function
+
+new_line:
+   push si		;preserve si
+   mov si, newLine	;load newline string
+   call print_string	;call to print the newline chars
+   pop si		;restore si
+   ret			;return from function
 ;;;;To be continued.....
 
 times 510-($-$$) db 0	;null padding macro
