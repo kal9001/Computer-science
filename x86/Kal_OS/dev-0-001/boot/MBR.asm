@@ -53,3 +53,6 @@ mov bx, 0x7e00		;set offset for buffer
 int 0x13		;execute disk read
 
 ;;;;To be continued.....
+
+times 510-($-$$) db 0	;null padding macro
+dw 0xaa55		;MBR identifier
