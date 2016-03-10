@@ -18,7 +18,10 @@
 ;  If not, see <http://www.gnu.org/licenses/>.
 ;
 ;  Features:
-;  TBA....
+;  512B 1st stage boot loader, Pulls a further 15 sectors from the disk and writes them directly after the first.
+;  These sectors form the stage 2 boot loader which is in a seperate file.
+;
+;  
 ;
 
 bits 16
@@ -34,7 +37,7 @@ mov bp, s	        ;set frame pointer to match
 
 mov [0x7dfe], dx	;preserve the boot drive number
 
-
+;This pulls a further 15 sectors from the disk.
 mov ah, 0x02 		;BIOS disk read sectors
 ;dl already set		;from which drive
 mov ch, 0x00 		;(C) track/cylinder   
