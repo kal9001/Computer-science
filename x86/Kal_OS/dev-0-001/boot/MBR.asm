@@ -1,4 +1,4 @@
-;Kal_OS master boot record. Stage 1 boot loader.
+;  Kal_OS master boot record. Stage 1 boot loader.
 ;  Web: http://home.kal9001.co.uk  Email: kal@kal9001.co.uk
 ;
 ;  Copyright (C) 2016 Kal9001
@@ -75,38 +75,32 @@ new_line:;Prints line line feed and carriage return
    ret			;return from function
 
 A20_check:;checks if the A20 line is enabled or not
+
    ;fs is set by A20_enable to 0xffff
    ;ds is already set for the bootloadr at 0x0000.
-
    mov di, 0x0500	;for low memory offset
    mov si, 0x0510	;for high memory offset
- 
    mov al, byte [fs:si]	;preserve the high memory byte 
    push ax		;on the stack
    mov al, byte [ds:si]	;preserve the low memory byte
    push ax		;on the stack
- 
    mov byte [fs:si], 0x00	;set high memory to zeros
    mov byte [ds:di], 0xFF	;set low memory to ones
    cmp byte [fs:si], 0xFF	;high memory should still be ones
- 
    pop ax		;from the stack
    mov byte [ds:di], al	;restore lower the memory byte
    pop ax		;from the stack
    mov byte [fs:si], al	;restore the higher memory byte
- 
    je .disable	;jump over the success part if the values were the same
- 
    mov ax, 0	;ax=0 means the memory values were different
    ret   	;as they should have been so no action is needed
-.disable:
-   mov ax, 1	;ax=1 means the read from high memory looped around to
-   ret		;low memory so the A20 line needs enabling
+   .disable:
+      mov ax, 1	;ax=1 means the read from high memory looped around to
+      ret	;low memory so the A20 line needs enabling
 
 A20_enable:;attempt to activate the A20 line
    mov ax, 0xffff	
    mov fs, ax		;set fs to highest segment
-	
    call A20_check	;check...
    cmp ax, 0		;does it work
    je .done1		;yes...great, jump over the rest
@@ -119,16 +113,14 @@ A20_enable:;attempt to activate the A20 line
    call print_string	;give up for now
    jmp $		;lock up..cant be assed
    ;keyboard and fast methods should be added here later on...
-
-   
-.done1:
-   mov si, gateWoop
-   call print_string
-   ret
-.done2:
-   mov si, gateBios
-   call print_string
-   ret
+   .done1:;reports that the gate was already open!
+      mov si, gateWoop
+      call print_string
+      ret
+   .done2:;reports that the gate needed to be opened by BIOS
+      mov si, gateBios
+      call print_string
+      ret
 
 newLine		db `\n\r`, 0
 diskFail 	db 'Disk read failure :-/ please check and restart computer', 0
@@ -136,11 +128,11 @@ gateFail	db 'Could not open A20...', 0
 gateWoop	db 'A20 was already open!', 0
 gateBios	db 'A20 was opened by BIOS', 0
 welcome		db 'Kal_OS', 0
+
 times 510-($-$$) db 0	;null padding macro
 dw 0xaa55		;MBR identifier
 
 call A20_enable		;enable A20, subroutine will lockup if it fails
-
 call new_line
 mov si, welcome		;print welcome message
 call print_string
