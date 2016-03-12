@@ -38,23 +38,30 @@ mov bp, sp		;set frame pointer to match
 
 mov [0x7dfe], dx	;preserve the boot drive number
 
-
 mov ah, 0x02 		;BIOS disk read sectors
 ;dl already set		;from which drive
 mov ch, 0x00 		;(C) track/cylinder   
 ;dh already set		;(H) R/W head
 mov cl, 0x02 		;(S) start sector
 mov al, 0x0f 		;number of sectors to read
-			
 ;es already set		;segment for buffer		
 mov bx, 0x7e00		;set offset for buffer
 int 0x13		;execute disk read
 
-jnc 0x7e00		;jump if succesful
+jnc continue		;if disk loading didnt fail jump to continue
 
 mov si, diskFail	;disk failure message
 call print_string	;print message
-jmp $			;endless loop
+jmp $			;lockup if disk fail
+
+continue:
+call A20_enable		;enable A20, subroutine will lockup if it fails
+call new_line
+mov si, welcome		;print welcome message
+call print_string
+call new_line
+call switch_to_PM	;will jump to 32bit code
+jmp $			;just incase some berk accidently ret's from above...
 
 print_string:;prints a string from memory
    mov ah, 0x0e		;BIOS TTY function
@@ -75,7 +82,6 @@ new_line:;Prints line line feed and carriage return
    ret			;return from function
 
 A20_check:;checks if the A20 line is enabled or not
-
    ;fs is set by A20_enable to 0xffff
    ;ds is already set for the bootloadr at 0x0000.
    mov di, 0x0500	;for low memory offset
@@ -122,30 +128,18 @@ A20_enable:;attempt to activate the A20 line
       call print_string
       ret
 
-newLine		db `\n\r`, 0
-diskFail 	db 'Disk read failure :-/ please check and restart computer', 0
-gateFail	db 'Could not open A20...', 0
-gateWoop	db 'A20 was already open!', 0
-gateBios	db 'A20 was opened by BIOS', 0
-welcome		db 'Kal_OS', 0
-
-times 510-($-$$) db 0	;null padding macro
-dw 0xaa55		;MBR identifier
-
-call A20_enable		;enable A20, subroutine will lockup if it fails
-call new_line
-mov si, welcome		;print welcome message
-call print_string
-
-jmp $			;nothing else to do at the moment...lockup
-
-;just to move this stuff away so the hex is easier to read.
-times 128 db 0
+switch_to_PM:
+   cli			;disable interrupts
+   lgdt [gdt.descriptor]
+   mov eax, cr0		;load control register 0
+   or  eax, 1		;mask enable bit 1
+   mov cr0, eax		;save modified control register 0
+   jmp (gdt.code - gdt.null):init_PM	;long jump to fully enable
 
 gdt:;temporary global descriptor table for 32-bit mode
    .null:
-      db 0x00
-      db 0x00
+      dd 0x00
+      dd 0x00
 
    .code:
       dw 0xffff		;Limit (bits  0-15)
@@ -163,38 +157,51 @@ gdt:;temporary global descriptor table for 32-bit mode
       db 0b11001111	;Flags2 / Limit 16-19
       db 0x00		;Base 24-31 
 
-   .end:
-
    .descriptor:
-      dw .end - .null - 1
+      dw .descriptor - .null - 1
       dd .null
 
-CODE_SEGMENT equ .code - .null
-DATA_SEGMENT equ .data - .null
+newLine		db `\n\r`, 0
+diskFail 	db 'Disk read failure :-/ please check and restart computer', 0
+gateFail	db 'Could not open A20...', 0
+gateWoop	db 'A20 was already open!', 0
+gateBios	db 'A20 was opened by BIOS', 0
+welcome		db 'Kal_OS', 0
+protected	db 'Welcome to protected mode! :D', 0
 
-switch_to_PM:
-   cli			;disable interrupts
-   lgdt [gdt.descriptor]
-   
-   mov eax, cr0		;load control register 0
-   or  eax, 0x1		;mask enable bit 1
-   mov cr0, eax		;save modified control register 0
-
-   jmp CODE_SEGMENT:init_PM	;long jump to fully enable
+times 510-($-$$) db 0	;null padding macro
+dw 0xaa55		;MBR identifier
 
 [bits 32]
+init_PM:;everything should be 32bit from here on! :D
+mov ax, (gdt.data - gdt.null)	;flat memory model   
+mov ds, ax
+mov ss, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov esp, 0x7fffe	;place stack ontop of previous stack
+mov ebp, esp		;set base to start of stack
+;finished set up. dont bother returning as the stack just got nuked
+;may as well just fall out of the bottom.
 
-init_PM:
-   mov ax, DATA_SEGMENT	;flat memory model
-   mov ds, ax
-   mov ss, ax
-   mov es, ax
-   mov fs, ax
-   mov gs, ax
+mov esi, protected
+call PM_print_text
+jmp $			;nothing else to do at the moment...lockup
 
-   mov esp, 0x7fffe	;place stack ontop of previous stack
-   mov ebp, esp		;set base to start of stack
-
-   jmp $		;this jump should be to more code...
+;this function is crap and needs a better version
+PM_print_text:;prints a string onto the first line of the video buffer
+   mov edx, 0xb8000	;VGA memory start
+   .repeat:
+      lodsb		;AL = SI++
+      cmp al, 0		;compare al to 0
+      je .done		;Jump if equal
+      mov [edx], al
+      add edx, 1
+      mov [edx], byte 0x0f
+      add edx, 1
+      jmp .repeat	;loop to next char
+   .done:
+   ret			;return from function
 
 times 8192-($-$$) db 0	;null padding macro upto 8k
