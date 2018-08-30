@@ -14,3 +14,8 @@
 * Mux8Way16 { **IN** a[16], b[16], c[16], d[16], e[16], f[16], g[16], h[16], sel[3]; **OUT** out[16];
 * Mux16 { **IN** a[16], b[16], sel; **OUT** out[16]; }
 
+* HalfAdder { **IN** a, b; **OUT** sum, carry; }
+* FullAdder { **IN** a, b, c; **OUT** sum, carry; }
+* Add16 { **IN** a[16], b[16]; **OUT** out[16]; }
+* Inc16 { **IN** in[16]; **OUT** out[16]; }
+* ALU { **IN** x[16], y[16], zx, nx, zy, ny, f, no; **OUT** out[16], zr, ng; }
