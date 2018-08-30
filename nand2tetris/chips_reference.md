@@ -25,3 +25,9 @@
 * Bit { **IN** in, load; **OUT** out; }
 * Register { **IN** in[16], load; **OUT** out[16]; }
 * RAM8 { **IN** in[16], load, address[3]; **OUT** out[16]; }
+* RAM64 { **IN** in[16], load, address[6]; **OUT** out[16]; }
+* RAM512 { **IN** in[16], load, address[9]; **OUT** out[16]; }
+* RAM4K { **IN** in[16], load, address[12]; **OUT** out[16]; }
+* RAM16K { **IN** in[16], load, address[14]; **OUT** out[16]; }
+* PC { **IN** in[16], load, inc, reset; **OUT** out[16]; }
+
