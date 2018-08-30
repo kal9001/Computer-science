@@ -1,3 +1,4 @@
+* Nand { **IN** a, b; **OUT** out; }
 * Not { **IN** in; **OUT** out; }
 * Not16 { **IN** in[16]; **OUT** out[16]; }
 * And { **IN** a, b;  **OUT** out; }
@@ -19,3 +20,8 @@
 * Add16 { **IN** a[16], b[16]; **OUT** out[16]; }
 * Inc16 { **IN** in[16]; **OUT** out[16]; }
 * ALU { **IN** x[16], y[16], zx, nx, zy, ny, f, no; **OUT** out[16], zr, ng; }
+
+* DFF { **IN** in; **OUT** out; }
+* Bit { **IN** in, load; **OUT** out; }
+* Register { **IN** in[16], load; **OUT** out[16]; }
+* RAM8 { **IN** in[16], load, address[3]; **OUT** out[16]; }
