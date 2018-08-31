@@ -1,15 +1,15 @@
-Jump instructions
-null
-JGT | jump if  > 0        
-JEQ | jump if  = 0
-JGE | jump if >= 0
-JLT | jump if  < 0
-JNE | jump if != 0
-JLE | jump if <= 0
-JMP | jump always
+Jump instructions<br>
+* null
+* JGT | jump if  > 0        
+* JEQ | jump if  = 0
+* JGE | jump if >= 0
+* JLT | jump if  < 0
+* JNE | jump if != 0
+* JLE | jump if <= 0
+* JMP | jump always
 
-destinations
-null, M, D, MD, A, AM, AD, AMD
+destinations<br>
+* null, M, D, MD, A, AM, AD, AMD
 
 operations
 0, 1, -1, D, A, !D, !A, -D, -A, D+1, A+1, D-1, A-1, D+A, D-A, A-D, D&A, D|A
