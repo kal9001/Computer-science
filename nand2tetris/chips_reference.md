@@ -31,3 +31,5 @@
 * RAM16K { **IN** in[16], load, address[14]; **OUT** out[16]; }
 * PC { **IN** in[16], load, inc, reset; **OUT** out[16]; }
 
+* Memory { **IN** in[16], load, address[15]; **OUT** out[16]; }
+
