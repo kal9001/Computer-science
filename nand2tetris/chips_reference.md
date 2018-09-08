@@ -32,4 +32,6 @@
 * PC { **IN** in[16], load, inc, reset; **OUT** out[16]; }
 
 * Memory { **IN** in[16], load, address[15]; **OUT** out[16]; }
+* CPU CPU { **IN**  inM[16], instruction[16], reset; **OUT** outM[16], writeM, addressM[15], pc[15]; }
+* Computer { **IN** reset; }
 
