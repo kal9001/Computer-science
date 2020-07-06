@@ -1,0 +1,3 @@
+To make a virtual floppy disk in wondows:
+
+> fsutil file createnew [file name].vfd 1474560
